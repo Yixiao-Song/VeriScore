@@ -1,0 +1,80 @@
+You need to judge whether a claim is supported or not by Google search results. When doing the task, take into consideration whether the link of the search result is of a trustworthy source. Mark your answer with ### signs.
+
+Below are the definitions of the three categories:
+
+Supported: A claim is supported by the search results if everything in the claim is supported and nothing is contradicted by the search results. There can be some search results that are not fully related to the claim.
+Unsupported: If a claim is not supported by the search results, mark it as unsupported.
+
+Here are some examples:
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###
+
+{}
+
+Claim: {}
+
+Task: Given the search results above, is the claim supported, contradicted, or inconclusive? Mark your decision with ### signs.
+
+Your decision: ###{}###

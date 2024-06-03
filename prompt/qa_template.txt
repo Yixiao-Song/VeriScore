@@ -1,0 +1,105 @@
+You are trying to verify how factual a response to a question or request is. To do so, you need to break down a sentence and extract as many fine-grained facts mentioned in the response. Each of these fine-grained facts should be verifiable against reliable external world knowledge (e.g., via Wikipedia). Any story, personal experiences, hypotheticals (e.g., "would be" or subjunctive), subjective statements (e.g., opinions), suggestions, advice, instructions, and other such content should not be included in the list. Biographical, historical, scientific, and other such texts are not personal experiences or  stories. You should extract verifiable facts from them. Each fact should also be describing either one single event (e.g., "Nvidia is founded in 1993 in Sunnyvale, California, U.S.") or single state (e.g., "UMass Amherst has existed for 161 years.") with necessary time and location information. Quotations should be extracted verbatim with the source when available. Listed references should be ignored.
+
+Extract fine-grained facts from the sentence between <SOS> and <EOS>. You should focus on the named entities and numbers in the sentence and extract relevant information from the sentence. Do not extract claims from the question. The question and other sentences are only context for you to recover pronouns, definite phrases (e.g., "the victims" or "the pope"), and so on. Each fact should be understandable on its own and require no additional context. This means that you need to always related the extracted claims to the question. This also means that all entities must be referred to by name but not pronoun. Use the name of entities rather than definite noun phrases (e.g., 'the teacher') whenever possible. If a definite noun phrase is used, be sure to add modifiers (e.g., a embedded clause, a prepositional phrase, etc.). Each fact must be situated within relevant temporal and location whenever needed. Keep each fact to one sentence with zero or at most one embedded clause. You do not need to justify what you extract.
+
+If there is no verifiable fact in the sentence, please write "No verifiable claim."
+
+Here are some examples:
+
+Question: What NASA programs would support our college in starting a robotics program?
+Response: NASA has several programs that can support colleges in starting a robotics program. Here are a few:
+<SOS>1. NASA Robotics Alliance Project (RAP): This program provides educational resources and support for robotics teams, including college-level teams, that are participating in NASA robotics competitions.<EOS>
+2. NASA Minority University Research and Education Project (MUREP): This program provides funding and resources for colleges and universities with a significant minority student population to develop research and education programs in STEM fields, including robotics.
+3. NASA's Robotics Education Project: This project provides robotics education materials and resources for educators, including college-level educators, to use in their classrooms.
+4. NASA's Space Technology Mission Directorate (STMD): This directorate funds research and development in advanced technologies, including robotics, that can support NASA's mission to explore space.
+Sentence to be focused on: 1. NASA Robotics Alliance Project (RAP): This program provides educational resources and support for robotics teams, including college-level teams, that are participating in NASA robotics competitions.
+Facts:
+- NASA has a program called NASA Robotics Alliance Project (RAP).
+- NASA Robotics Alliance Project provides educational resources for robotics teams.
+- NASA Robotics Alliance Project provides supports for robotics teams.
+- NASA Robotics Alliance Project provides supports for college-level teams that are participating in NASA robotics competitions.
+
+Question: What NASA programs would support our college in starting a robotics program?
+Response: 2. NASA Minority University Research and Education Project (MUREP): This program provides funding and resources for colleges and universities with a significant minority student population to develop research and education programs in STEM fields, including robotics.
+3. NASA's Robotics Education Project: This project provides robotics education materials and resources for educators, including college-level educators, to use in their classrooms.
+4. NASA's Space Technology Mission Directorate (STMD): This directorate funds research and development in advanced technologies, including robotics, that can support NASA's mission to explore space.
+<SOS>5. NASA's Human Exploration and Operations Mission Directorate (HEOMD): This directorate funds research and development in technologies that can support human space exploration, including robotics.<EOS>
+You can visit NASA's website to learn more about each of these programs and how to apply for funding and support.
+Sentence to be focused on: 5. NASA's Human Exploration and Operations Mission Directorate (HEOMD): This directorate funds research and development in technologies that can support human space exploration, including robotics.
+Facts:
+- NASA has a directorate called NASA's Human Exploration and Operations Mission Directorate (HEOMD).
+- NASA's Human Exploration and Operations Mission Directorate funds research in technologies that can support human space exploration.
+- NASA's Human Exploration and Operations Mission Directorate funds development in technologies that can support robotics.
+- Robotics is a technology that can support human space exploration.
+
+Question: How can I find a law firm that specializing in copyright related matters?
+Response: There are a few ways to find a law firm that specializes in copyright-related matters:
+1. Ask for referrals: Ask your friends, colleagues, or other professionals in your network if they know of any law firms that specialize in copyright law.
+<SOS>2. Online search: You can search online using keywords like \"copyright law firm\" or \"copyright lawyer\" along with your location. This should bring up a list of law firms in your area that specialize in copyright law.<EOS>
+3. Bar association referral service: Many bar associations have a referral service that can connect you with a lawyer or law firm that specializes in copyright law.
+Sentence to be focused on: 2. Online search: You can search online using keywords like "copyright law firm" or "copyright lawyer" along with your location. This should bring up a list of law firms in your area that specialize in copyright law.
+Facts:
+No verifiable claim.
+
+Question: How do trees know when to stop growing?
+Thanks everyone i learned a lot more about trees.(:
+Response: <SOS>Ah yes, tomatoes, this is a big problem with tomato plants.<EOS>
+Sentence to be focused on: Ah yes, tomatoes, this is a big problem with tomato plants.
+Facts:
+No verifiable claim.
+
+Question: with billions of stars emitting photons why is the night sky not bright?
+Response: Exactly. The usual example is an emergency vehicle with its siren on. <SOS>As it approaches you, the pitch is higher, as it passes you and recedes the pitch drops - the sound is compressed on the approach and stretched as it recedes.<EOS>
+Sentence to be focused on: As it approaches you, the pitch is higher, as it passes you and recedes the pitch drops - the sound is compressed on the approach and stretched as it recedes.
+Facts:
+No verifiable claim.
+
+Question: I want Ubutu but i have a question first I'm not new to Ubuntu my friends use it i never had a chance to use it on my own PC i'm running on a window 8 and it has no info like product keys and such it was on the box and this is a hand me down PC my question is do i need those for the installation if so how do i retrieve this info
+Response: <SOS>You do not need that information to boot or install ubuntu.<EOS> You might need to make a windows recovery disk.
+Sentence to be focused on: You do not need that information to boot or install ubuntu.
+Facts:
+- One does not need product keys to install Ubuntu.
+
+Question: I want Ubutu but i have a question first I'm not new to Ubuntu my friends use it i never had a chance to use it on my own PC i'm running on a window 8 and it has no info like product keys and such it was on the box and this is a hand me down PC my question is do i need those for the installation if so how do i retrieve this info
+Response: You do not need that information to boot or install ubuntu. You might need to make a windows recovery disk. I would make one if you do not have one.
+<SOS>You need a windows recovery disk in the event you have a problem with windows.<EOS>
+Sentence to be focused on: You need a windows recovery disk in the event you have a problem with windows.
+Facts:
+- One needs a windows recovery disk if one has a problem with windows when installing Ubuntu.
+
+Question: How come the Netherlands managed to pull their weight versus Europe's superpowers with a population of a measly 1.5 million?
+The trading empire of the Dutch Republic would be impressive alone for it's achievements in trade and warfare, but it's astounding when you realize that by 1600, the Netherlands had 1.5m for population! Compare that to 18m of France, or 9m approx of Spain, or 5.6m by England.
+I get that they were very sophisticated and had advanced commerce, production and politics. But still... 1.5 million? How is that enough manpower to arm enough soldiers on land to prevent invasions, and sailors to operate a huge fleet? And given the immense wealth and manpower of Spain and Portugal compared to that of the Dutch - what prevented them from just dropping in on Amsterdam and burn it so to keep them out of their business? Or maybe drop in on Calais and march on land if they didn't have enough naval power.
+Response: I'm writing a paper on the Dutch army around that time at this very moment.
+I'll try to answer a couple of your questions. <SOS>One thing to know is that the military strength of the Netherlands varied greatly in short periods of time.<EOS> I'll mostly be focussing on the period around 1600, because that's the year you mentioned in your question.
+First thing to know is that the 'manpower' of the Netherlands itself doesn't really translate well into actual figures for the Dutch army.
+Sentence to be focused on: One thing to know is that the military strength of the Netherlands varied greatly in short periods of time.
+Facts:
+- The military strength of the Netherlands varied greatly in short periods of time around 1600.
+
+Question: How does a phone vibrate?
+Response: Place magnet 1 on top and magnet 2 underneath the cardboard so they can influence each other magnetically. Now grab the bottom magnet and rotate and or move it randomly. You will notice the cardboard vibrate. <SOS>Inside a cell phone one of the magnets is attached to the phone body and the other is an energized coil, similar to a common speaker.<EOS>
+NOTE: speakers vibrate so fast you can hear them, so a speaker is just a fancy vibrator
+Sentence to be focused on: Inside a cell phone one of the magnets is attached to the phone body and the other is an energized coil, similar to a common speaker.
+Facts:
+- For a phone to vibrate, there is one magnet in a cell phone that is attached to the phone body.
+- For a phone to vibrate, there is one magnet in a cell phone that is an energized coil.
+
+Question: How did diarrhea kill so many people before and now it’s not that big of a deal?
+Title really, is it just that our diet is better and decent food is much more abundant or is it just general hygiene?
+Response: A lot of illnesses with high mortality rates that diarrhea is a symptom of are better treated today and are less common.
+For example, cholera outbreaks occurred frequently in 19th century Europe due to poor sanitation standards. This disease caused severe diarrhea and can have a mortality rate of up to 50-60% if left untreated. Today, cholera is very rare since the public water supply is much more cleaner and less prone to contamination by disease. If someone does contract cholera, there are much more advanced medical treatment available that make the mortality rate &lt;1% if you seek treatment.
+<SOS>Furthermore, complications caused by diarrhea such as dehydration and loss of nutrients can be more easily treated today as well.<EOS>
+Sentence to be focused on: Furthermore, complications caused by diarrhea such as dehydration and loss of nutrients can be more easily treated today as well.
+Facts:
+- Diarrhea causes complications.
+- Diarrhea cuases dehydration.
+- Diarrhea causes loss of nutrients.
+- Dehydration can be more easily treated today.
+- Loss of nutrients can be more easily treated today.
+
+Extract *verifiable atomic* fact.
+
+{snippet}
+Sentence to be focused on: {sentence}
+Facts:
