@@ -90,7 +90,7 @@ class VeriScorer(object):
                     continue
 
                 # extract claims
-                snippet_lst, claim_lst_lst, all_claim_lst, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.qa_scanner_extractor(
+                snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.qa_scanner_extractor(
                     question, response)
 
                 # write output
@@ -101,8 +101,8 @@ class VeriScorer(object):
                                "response_tok_cnt": response_tok_cnt,
                                "model": model,
                                "abstained": False,  # "abstained": False, "abstained": True
-                               "claim_lst_lst": claim_lst_lst,
-                               "all_claim_lst": all_claim_lst
+                               "claim_list": claim_list,
+                               "all_claims": all_claims
                                }
                 f.write(json.dumps(output_dict) + "\n")
                 extracted_claims.append(output_dict)
@@ -119,14 +119,14 @@ class VeriScorer(object):
                     searched_evidence_dict.append(dict_item)
                     continue
 
-                claim_lst = dict_item["all_claim_lst"]
+                claim_lst = dict_item["all_claims"]
                 if claim_lst == ["No verifiable claim."]:
-                    dict_item["claim_snippets_dict"] = []
+                    dict_item["claim_search_results"] = []
                     f.write(json.dumps(dict_item) + "\n")
                     searched_evidence_dict.append(dict_item)
                     continue
                 claim_snippets = self.fetch_search.get_snippets(claim_lst)
-                dict_item["claim_snippets_dict"] = claim_snippets
+                dict_item["claim_search_results"] = claim_snippets
                 searched_evidence_dict.append(dict_item)
                 f.write(json.dumps(dict_item) + "\n")
                 f.flush()
@@ -137,13 +137,26 @@ class VeriScorer(object):
         output_file = f'verification_{input_file_name}_{self.model_name_verification}_{self.label_n}.jsonl'
         output_path = os.path.join(output_dir, output_file)
 
+        scores = []
         total_prompt_tok_cnt = 0
         total_resp_tok_cnt = 0
+
         with open(output_path, "w") as f:
             for dict_item in tqdm(searched_evidence_dict):
-                claim_snippets_dict = dict_item["claim_snippets_dict"]
+                claim_snippets_dict = dict_item["claim_search_results"]
+                # no verifiable claim for the whole model response
+                if not claim_snippets_dict:
+                    scores.append(0)
                 claim_verify_res_dict, prompt_tok_cnt, response_tok_cnt = self.claim_verifier.verifying_claim(
                     claim_snippets_dict, search_res_num=args.search_res_num)
+
+                # get the supported claims
+                supported_claims = []
+                for res in claim_verify_res_dict:
+                    model_decision = res['verification_res']
+                    if model_decision == "supported":
+                        supported_claims.append(res['claim'])
+
                 json.dump(claim_verify_res_dict, f)
                 f.write("\n")
                 total_prompt_tok_cnt += prompt_tok_cnt

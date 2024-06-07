@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 continue
 
             # extract claims
-            snippet_lst, claim_lst_lst, all_claim_lst, prompt_tok_cnt, response_tok_cnt = claim_extractor.qa_scanner_extractor(
+            snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = claim_extractor.qa_scanner_extractor(
                 question, response)
 
             # write output
@@ -82,7 +82,7 @@ if __name__ == '__main__':
                            "response_tok_cnt": response_tok_cnt,
                            "model": model,
                            "abstained": False,  # "abstained": False, "abstained": True
-                           "claim_lst_lst": claim_lst_lst,
-                           "all_claim_lst": all_claim_lst
+                           "claim_list": claim_list,
+                           "all_claims": all_claims
                            }
             f.write(json.dumps(output_dict) + "\n")

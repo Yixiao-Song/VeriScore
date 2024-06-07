@@ -50,13 +50,13 @@ if __name__ == '__main__':
                 f.write(json.dumps(dict_item) + "\n")
                 continue
 
-            claim_lst = dict_item["all_claim_lst"]
+            claim_lst = dict_item["all_claims"]
             if claim_lst == ["No verifiable claim."]:
-                dict_item["claim_snippets_dict"] = []
+                dict_item["claim_search_results"] = []
                 f.write(json.dumps(dict_item) + "\n")
                 continue
             claim_snippets = fetch_search.get_snippets(claim_lst)
-            dict_item["claim_snippets_dict"] = claim_snippets
+            dict_item["claim_search_results"] = claim_snippets
 
             f.write(json.dumps(dict_item) + "\n")
             f.flush()

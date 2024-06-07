@@ -91,6 +91,9 @@ class ClaimVerifier():
                                                                                               prompt)
             prompt_tok_cnt += prompt_tok_num
             response_tok_cnt += response_tok_num
+
+            clean_output = response.replace("#", '').split('.')[0].lower()
             claim_verify_res_dict[claim] = {"search_results": search_res_str,
-                                            "response": response}
+                                            "response": response,
+                                            "verification_result": clean_output}
         return claim_verify_res_dict, prompt_tok_cnt, response_tok_cnt
