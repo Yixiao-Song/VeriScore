@@ -19,7 +19,7 @@ python -m spacy download en_core_web_sm
 2. Set OpenAI or Claude API key to environment variable of `bash` for prompting approach
 ```
 export OPENAI_API_KEY_PERSONAL={your_openai_api_key}
-epport CLAUDE_API_KEY={your_claude_api_key}
+export CLAUDE_API_KEY={your_claude_api_key}
 ```
 3. Set SERPER API key to environment variable of `bash` for searching evidence
 ```
