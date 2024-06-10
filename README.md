@@ -10,7 +10,7 @@ We provide an end-to-end pipeline to obtain the VeriScore, along with each of it
 2. Install `veriscore` pacakge using `pip`
 3. Download `en_core_web_sm` using `spacy` library
 ```
-pip install --upgrade factscore
+pip install --upgrade veriscore
 python -m spacy download en_core_web_sm
 ```
 
