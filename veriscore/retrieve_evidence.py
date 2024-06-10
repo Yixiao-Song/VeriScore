@@ -33,17 +33,6 @@ if __name__ == '__main__':
     output_path = os.path.join(output_dir, output_file)
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
 
-    # get the pick up point
-    # try:
-    #     with open(output_path, "r") as f:
-    #         pick_up_point = len(f.readlines())
-    #         print(f"Pick up point: {pick_up_point}")
-    # except:
-    #     pick_up_point = 0
-    #     print("No pick up point")
-    #     pass
-
-    # iterate through each data point and get search results
     with open(output_path, "w") as f:
         for dict_item in tqdm(data):
             if dict_item['abstained']:

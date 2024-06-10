@@ -1,6 +1,5 @@
 """
 This script is written to extract claims from the model responses.
-model generations: /data/yixiao/atomic_claims/data/model_generation_decomposition/model_generations
 """
 
 import os
@@ -8,19 +7,6 @@ import json
 import argparse
 from tqdm import tqdm
 from .claim_extractor import ClaimExtractor
-
-input_file_names = ['Mistral-7B-Instruct-v0.1',
-                    'Mistral-7B-Instruct-v0.2',
-                    'Mixtral-8x7B-Instruct-v0.1',
-                    'Mixtral-8x22B-Instruct-v0.1',
-                    'gpt-4-0125-preview',
-                    'gpt-3.5-turbo-1106',
-                    'gpt-3.5-turbo-0613',
-                    'claude-3-opus-20240229',
-                    'claude-3-sonnet-20240229',
-                    'claude-3-haiku-20240307',
-                    'dbrx-instruct',
-                    'OLMo-7B-Instruct', ]
 
 abstain_responses = ["I'm sorry, I cannot fulfill that request.",
                      "I'm sorry, I can't fulfill that request.",
@@ -55,7 +41,7 @@ if __name__ == '__main__':
     with open(output_path, "w") as f:
         for dict_item in tqdm(data):
             # get necessary info
-            question = dict_item["question"]
+
             response = dict_item["response"]
             prompt_source = dict_item["prompt_source"]
             model = dict_item["model"]
@@ -70,9 +56,14 @@ if __name__ == '__main__':
                 f.write(json.dumps(output_dict) + "\n")
                 continue
 
-            # extract claims
-            snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = claim_extractor.qa_scanner_extractor(
-                question, response)
+            if "question" in dict_item and dict_item["question"]:
+                question = dict_item["question"]
+                snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = claim_extractor.qa_scanner_extractor(
+                    question, response)
+            else:
+                question = ''
+                snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = claim_extractor.non_qa_scanner_extractor(
+                    response)
 
             # write output
             output_dict = {"question": question.strip(),
@@ -86,3 +77,4 @@ if __name__ == '__main__':
                            "all_claims": all_claims
                            }
             f.write(json.dumps(output_dict) + "\n")
+    print(f"extracted claims are saved at {output_path}")

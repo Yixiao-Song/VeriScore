@@ -1,23 +1,40 @@
 import os
 import pdb
 import json
+
 from .get_response import GetResponse
 
 
 class ClaimVerifier():
     def __init__(self, model_name, label_n=2, cache_dir="./data/cache/", demon_dir="data/demos/"):
-        cache_dir = os.path.join(cache_dir, model_name)
-        os.makedirs(cache_dir, exist_ok=True)
+        self.model=None
         self.model_name = model_name
         self.label_n = label_n
-        self.cache_file = os.path.join(cache_dir, "claim_verification_cache.json")
-        self.demon_path = os.path.join(demon_dir, 'few_shot_examples.jsonl')
-        self.get_model_response = GetResponse(cache_file=self.cache_file,
-                                              model_name=model_name,
-                                              max_tokens=1000,
-                                              temperature=0)
-        self.system_message = "You are a helpful assistant who can verify the truthfulness of a claim against reliable external world knowledge."
-        self.prompt_initial_temp = self.get_initial_prompt_template()
+        if os.path.isdir(model_name):
+            from unsloth import FastLanguageModel
+
+            self.model, self.tokenizer = FastLanguageModel.from_pretrained(
+                model_name=model_name,
+                max_seq_length=2048,
+                dtype=None,
+                load_in_4bit=True,
+            )
+            FastLanguageModel.for_inference(self.model)
+            self.tokenizer.padding_side = "left"
+            self.alpaca_prompt = open("./prompt/verification_alpaca_template.txt", "r").read()
+            self.instruction = open("./prompt/verification_instruction_binary_no_demo.txt", "r").read()
+        else:
+            cache_dir = os.path.join(cache_dir, model_name)
+            os.makedirs(cache_dir, exist_ok=True)
+            self.cache_file = os.path.join(cache_dir, "claim_verification_cache.json")
+            self.demon_path = os.path.join(demon_dir, 'few_shot_examples.jsonl')
+            self.get_model_response = GetResponse(cache_file=self.cache_file,
+                                                  model_name=model_name,
+                                                  max_tokens=1000,
+                                                  temperature=0)
+            self.system_message = "You are a helpful assistant who can verify the truthfulness of a claim against reliable external world knowledge."
+            self.prompt_initial_temp = self.get_initial_prompt_template()
+
 
     def get_instruction_template(self):
         prompt_temp = ''
@@ -71,28 +88,41 @@ class ClaimVerifier():
         """
         search_snippet_lst = [{"title": title, "snippet": snippet, "link": link}, ...]
         """
-        assert search_res_num <= 9, "search_res_num should be less than or equal to 9"
-
         prompt_tok_cnt, response_tok_cnt = 0, 0
         claim_verify_res_dict = {}
         for claim, search_snippet_lst in claim_snippets_dict.items():
             search_res_str = ""
             search_cnt = 1
-            for search_dict in search_snippet_lst:
+            for search_dict in search_snippet_lst[:search_res_num]:
                 search_res_str += f'Search result {search_cnt}\nTitle: {search_dict["title"].strip()}\nLink: {search_dict["link"].strip()}\nContent: {search_dict["snippet"].strip()}\n\n'
                 search_cnt += 1
+            if self.model:
+                usr_input = f"Claim: {claim.strip()}\n\n{search_res_str.strip()}"
+                formatted_input = self.alpaca_prompt.format(self.instruction, usr_input)
 
-            prompt_tail = self.your_task.format(
-                claim=claim,
-                search_results=search_res_str.strip(),
-            )
-            prompt = f"{self.prompt_initial_temp}\n\n{prompt_tail}"
-            response, prompt_tok_num, response_tok_num = self.get_model_response.get_response(self.system_message,
-                                                                                              prompt)
-            prompt_tok_cnt += prompt_tok_num
-            response_tok_cnt += response_tok_num
+                inputs = self.tokenizer(formatted_input, return_tensors="pt").to("cuda")
+                output = self.model.generate(**inputs,
+                                              max_new_tokens=500,
+                                              use_cache=True,
+                                              eos_token_id=[self.tokenizer.eos_token_id,
+                                                            self.tokenizer.convert_tokens_to_ids("<|eot_id|>")],
+                                              pad_token_id=self.tokenizer.eos_token_id, )
+                response = self.tokenizer.batch_decode(output)
+                clean_output = ' '.join(response).split("<|end_header_id|>\n\n")[
+                    -1].replace("<|eot_id|>", "").strip()
 
-            clean_output = response.replace("#", '').split('.')[0].lower()
+            else:
+                prompt_tail = self.your_task.format(
+                    claim=claim,
+                    search_results=search_res_str.strip(),
+                )
+                prompt = f"{self.prompt_initial_temp}\n\n{prompt_tail}"
+                response, prompt_tok_num, response_tok_num = self.get_model_response.get_response(self.system_message,
+                                                                                                  prompt)
+                prompt_tok_cnt += prompt_tok_num
+                response_tok_cnt += response_tok_num
+
+                clean_output = response.replace("#", '').split('.')[0].lower()
             claim_verify_res_dict[claim] = {"search_results": search_res_str,
                                             "response": response,
                                             "verification_result": clean_output}

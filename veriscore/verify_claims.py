@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     output_dir = os.path.join(args.output_dir, 'model_output')
     os.makedirs(output_dir, exist_ok=True)
-    output_file = f'verification_{input_file_name}_{model_name}_{label_n}.jsonl'
+    output_file = f'verification_{input_file_name}_{label_n}.jsonl'
     output_path = os.path.join(output_dir, output_file)
 
     scores = []
@@ -40,17 +40,17 @@ if __name__ == '__main__':
 
     with open(output_path, "w") as f:
         for dict_item in tqdm(input_data):
-            claim_snippets_dict = dict_item["claim_search_results"]
+            claim_search_results = dict_item["claim_search_results"]
 
             if dict_item['abstained']:
                 f.write(json.dumps(dict_item) + "\n")
                 continue
 
-            if not claim_snippets_dict:
+            if not claim_search_results:
                 scores.append(0)
 
             claim_verify_res_dict, prompt_tok_cnt, response_tok_cnt = claim_verifier.verifying_claim(
-                claim_snippets_dict, search_res_num=args.search_res_num)
+                claim_search_results, search_res_num=args.search_res_num)
 
             # get the supported claims
             supported_claims = []

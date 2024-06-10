@@ -12,20 +12,6 @@ from .claim_extractor import ClaimExtractor
 from .search_API import SearchAPI
 from .claim_verifier import ClaimVerifier
 
-
-input_file_names = ['Mistral-7B-Instruct-v0.1',
-                    'Mistral-7B-Instruct-v0.2',
-                    'Mixtral-8x7B-Instruct-v0.1',
-                    'Mixtral-8x22B-Instruct-v0.1',
-                    'gpt-4-0125-preview',
-                    'gpt-3.5-turbo-1106',
-                    'gpt-3.5-turbo-0613',
-                    'claude-3-opus-20240229',
-                    'claude-3-sonnet-20240229',
-                    'claude-3-haiku-20240307',
-                    'dbrx-instruct',
-                    'OLMo-7B-Instruct', ]
-
 abstain_responses = ["I'm sorry, I cannot fulfill that request.",
                      "I'm sorry, I can't fulfill that request.",
                      "I'm sorry, but I cannot fulfill that request.",
@@ -73,7 +59,6 @@ class VeriScorer(object):
         extracted_claims = []
         with open(output_path, "w") as f:
             for dict_item in tqdm(data):
-                question = dict_item["question"]
                 response = dict_item["response"]
                 prompt_source = dict_item["prompt_source"]
                 model = dict_item["model"]
@@ -86,12 +71,16 @@ class VeriScorer(object):
                                    "prompt_source": prompt_source,
                                    "model": model, }
                     f.write(json.dumps(output_dict) + "\n")
-                    extracted_claims.append(output_dict)
                     continue
 
-                # extract claims
-                snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.qa_scanner_extractor(
-                    question, response)
+                if "question" in dict_item:
+                    question = dict_item["question"]
+                    snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.qa_scanner_extractor(
+                        question, response)
+                else:
+                    question = ''
+                    snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.non_qa_scanner_extractor(
+                        response)
 
                 # write output
                 output_dict = {"question": question.strip(),
@@ -134,7 +123,7 @@ class VeriScorer(object):
 
         output_dir = os.path.join(args.output_dir, 'model_output')
         os.makedirs(output_dir, exist_ok=True)
-        output_file = f'verification_{input_file_name}_{self.model_name_verification}_{self.label_n}.jsonl'
+        output_file = f'verification_{input_file_name}_{self.label_n}.jsonl'
         output_path = os.path.join(output_dir, output_file)
 
         scores = []
@@ -143,19 +132,19 @@ class VeriScorer(object):
 
         with open(output_path, "w") as f:
             for dict_item in tqdm(searched_evidence_dict):
-                claim_snippets_dict = dict_item["claim_search_results"]
+                claim_search_results = dict_item["claim_search_results"]
                 # no verifiable claim for the whole model response
-                if not claim_snippets_dict:
+                if not claim_search_results:
                     scores.append(0)
                 claim_verify_res_dict, prompt_tok_cnt, response_tok_cnt = self.claim_verifier.verifying_claim(
-                    claim_snippets_dict, search_res_num=args.search_res_num)
+                    claim_search_results, search_res_num=args.search_res_num)
 
                 # get the supported claims
                 supported_claims = []
-                for res in claim_verify_res_dict:
-                    model_decision = res['verification_res']
+                for claim, res in claim_verify_res_dict.items():
+                    model_decision = res['verification_result']
                     if model_decision == "supported":
-                        supported_claims.append(res['claim'])
+                        supported_claims.append(claim)
 
                 json.dump(claim_verify_res_dict, f)
                 f.write("\n")

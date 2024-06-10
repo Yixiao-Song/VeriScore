@@ -9,15 +9,32 @@ from .get_response import GetResponse
 
 class ClaimExtractor():
     def __init__(self, model_name, cache_dir="./data/cache/"):
-        cache_dir = os.path.join(cache_dir, model_name)
-        os.makedirs(cache_dir, exist_ok=True)
-        self.cache_file = os.path.join(cache_dir, f"claim_extraction_cache.json")
+        self.model=None
+        if os.path.isdir(model_name):
+            from unsloth import FastLanguageModel
+            self.model, self.tokenizer = FastLanguageModel.from_pretrained(
+                model_name=model_name,
+                max_seq_length=1024,
+                dtype=None,
+                load_in_4bit=True,
+            )
+            FastLanguageModel.for_inference(self.model)
+            self.EOS_TOKEN = self.tokenizer.eos_token
+            self.tokenizer.pad_token = "[PAD]"
+            self.tokenizer.padding_side = "right"
+            self.alpaca_prompt = open("./prompt/extraction_alpaca_template.txt", "r").read()
+        else:
+            cache_dir = os.path.join(cache_dir, model_name)
+            os.makedirs(cache_dir, exist_ok=True)
+            self.cache_file = os.path.join(cache_dir, f"claim_extraction_cache.json")
+            self.get_model_response = GetResponse(cache_file=self.cache_file,
+                                                  model_name=model_name,
+                                                  max_tokens=1000,
+                                                  temperature=0)
+            self.system_message = "You are a helpful assistant who can extract verifiable atomic claims from a piece of text. Each atomic fact should be verifiable against reliable external world knowledge (e.g., via Wikipedia)"
+
         self.spacy_nlp = spacy.load('en_core_web_sm')
-        self.get_model_response = GetResponse(cache_file=self.cache_file,
-                                              model_name=model_name,
-                                              max_tokens=1000,
-                                              temperature=0)
-        self.system_message = "You are a helpful assistant who can extract verifiable atomic claims from a piece of text. Each atomic fact should be verifiable against reliable external world knowledge (e.g., via Wikipedia)"
+
 
     def non_qa_scanner_extractor(self, response):
         """
@@ -144,16 +161,29 @@ class ClaimExtractor():
         snippet = (context1) <SOS>sentence<EOS> (context2)
         sentence = the sentence to be focused on
         """
-        prompt_template = self.get_prompt_template(qa_input)  # qa_prompt_temp if qa_input else non_qa_prompt_temp
-        prompt_text = prompt_template.format(snippet=snippet, sentence=sentence)
-        response, prompt_tok_cnt, response_tok_cnt = self.get_model_response.get_response(self.system_message,
-                                                                                          prompt_text)
 
-        if "No verifiable claim." in response:
-            return None, prompt_tok_cnt, response_tok_cnt
+        if self.model:
+            formatted_input = self.alpaca_prompt.format(input, "")
+            inputs = self.tokenizer(formatted_input, return_tensors="pt").to("cuda")
+
+            outputs = self.model.generate(**inputs, max_new_tokens=1000, use_cache=True)
+            output_str = ' '.join(self.tokenizer.batch_decode(outputs))
+            clean_output = output_str.split("### Response:")[-1].strip().replace("</s>", "")
+
+            claims = [x.strip() for x in clean_output.split("\n")]
+            return claims, 0, 0
         else:
-            # remove itemized list
-            facts = [x.strip().replace("- ", "") for x in response.split("\n")]
-            # remove numbers in the beginning
-            facts = [regex.sub(r"^\d+\.?\s", "", x) for x in facts]
-            return facts, prompt_tok_cnt, response_tok_cnt
+            ### prompting base approach via API call
+            prompt_template = self.get_prompt_template(qa_input)  # qa_prompt_temp if qa_input else non_qa_prompt_temp
+            prompt_text = prompt_template.format(snippet=snippet, sentence=sentence)
+            response, prompt_tok_cnt, response_tok_cnt = self.get_model_response.get_response(self.system_message,
+                                                                                              prompt_text)
+
+            if "No verifiable claim." in response:
+                return None, prompt_tok_cnt, response_tok_cnt
+            else:
+                # remove itemized list
+                claims = [x.strip().replace("- ", "") for x in response.split("\n")]
+                # remove numbers in the beginning
+                claims = [regex.sub(r"^\d+\.?\s", "", x) for x in claims]
+                return claims, prompt_tok_cnt, response_tok_cnt
