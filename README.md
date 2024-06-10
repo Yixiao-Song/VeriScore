@@ -1,16 +1,17 @@
 # VeriScore
 This is introduction for pip package of VeriScore. It have two type of method to extract claims by 
-1) prompting 
-2) fine-tuned model 
+1) Prompting 
+2) Fine-tuned model
 
 We have a preliminary [Colab notebook](https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for demo:  
 
 VeriScore consists of three parts 1) `claim extraction` 2) `evidence searching` and 3) `claim verification`.
 We provide an end-to-end pipeline to obtain the VeriScore, along with each of its components individually.
 ## Install
-1. Make a new Python 3.6+ environment using `virtualenv` or `conda`.
+1. Make a new Python 3.9+ environment using `virtualenv` or `conda`.
 2. Install `veriscore` pacakge using `pip`
 3. Download `en_core_web_sm` using `spacy` library
+4. Our code supports inference using fine-tuned models based on the Unsloth library. To use this feature, you need to install the [Unsloth](https://github.com/unslothai/unsloth) library.
 ```
 pip install --upgrade veriscore
 python -m spacy download en_core_web_sm
@@ -27,6 +28,7 @@ export CLAUDE_API_KEY={your_claude_api_key}
 ```
 export SERPER_KEY_PRIVATE={your_serper_api_key}
 ```
+4. For the prompt-based approach, you need to set `data_dir/demos/` with [few-shot examples](https://github.com/Yixiao-Song/VeriScore/blob/main/data/demos/few_shot_examples.jsonl).
 
 ## Running VeriScore using a command line
 This is an end-to-end pipeline for running VeriScore.
@@ -79,13 +81,13 @@ output:
   "response_tok_cnt": response_tok_cnt,
   "model": model,
   "abstained": False,  
-  "claim_lst_lst": claim_lst_lst,
-  "all_claim_lst": all_claim_lst
+  "claim_list": list of claims for each snippet,
+  "all_claims": list of all claims
  }
 ```
 `Evidence searching`:
 ```
- python3 -m veriscore.retrieval_evidence --data_dir {data_dir} --input_file {input_file}
+ python3 -m veriscore.retrieve_evidence --data_dir {data_dir} --input_file {input_file}
 ```
 * `input_file`: Name of input data file. It should be `jsonl` format where each line contains the keys of the output dictionary from the `Claim extraction`.
 output:
@@ -106,5 +108,6 @@ output:
  {
   ...
   "response": result of claim verification
+  "clean_output": post-processed label
  }
 ```
