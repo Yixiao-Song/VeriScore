@@ -3,7 +3,7 @@ This is introduction for pip package of VeriScore. It have two type of method to
 1) prompting 
 2) fine-tuned model 
 
-We have a preliminary [Colab notebook](notebook.https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for demo:  
+We have a preliminary [Colab notebook](https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for demo:  
 
 VeriScore consists of three parts 1) `claim extraction` 2) `evidence searching` and 3) `claim verification`.
 We provide an end-to-end pipeline to obtain the VeriScore, along with each of its components individually.
