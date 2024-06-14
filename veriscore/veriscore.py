@@ -146,12 +146,27 @@ class VeriScorer(object):
                     if model_decision == "supported":
                         supported_claims.append(claim)
 
+                # get sentence ave
+                sent_score_lst = []
+                for claim_lst in dict_item['claim_list']:
+                    sent_numerator = 0
+                    sent_denominator = len(claim_lst)
+                    for claim in claim_lst:
+                        if claim in supported_claims:
+                            sent_numerator += 1
+                    sent_score = sent_numerator / sent_denominator
+                    sent_score_lst.append(sent_score)
+
+                resp_score = sum(sent_score_lst) / len(sent_score_lst)
+                scores.append(resp_score)
+
                 json.dump(claim_verify_res_dict, f)
                 f.write("\n")
                 total_prompt_tok_cnt += prompt_tok_cnt
                 total_resp_tok_cnt += response_tok_cnt
 
         print(f"claim verification is done! saved to {output_path}")
+        print(f"\tScore: {sum(scores) / len(scores):.2f}")
         print(f"Total cost: {total_prompt_tok_cnt * 10 / 1e6 + total_resp_tok_cnt * 30 / 1e6}")
 
 if __name__ == '__main__':

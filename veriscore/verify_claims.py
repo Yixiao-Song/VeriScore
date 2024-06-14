@@ -77,5 +77,5 @@ if __name__ == '__main__':
             total_prompt_tok_cnt += prompt_tok_cnt
             total_resp_tok_cnt += response_tok_cnt
     print(
-        f"\tlen(resp_score_lst): {len(scores)} Score: {sum(scores) / len(scores):.2f}")
+        f"\tScore: {sum(scores) / len(scores):.2f}")
     print(f"Total cost: {total_prompt_tok_cnt * 10 / 1e6 + total_resp_tok_cnt * 30 / 1e6}")

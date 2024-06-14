@@ -9,7 +9,7 @@ from .get_response import GetResponse
 
 class ClaimExtractor():
     def __init__(self, model_name, cache_dir="./data/cache/"):
-        self.model=None
+        self.model = None
         if os.path.isdir(model_name):
             from unsloth import FastLanguageModel
             self.model, self.tokenizer = FastLanguageModel.from_pretrained(
@@ -35,8 +35,7 @@ class ClaimExtractor():
 
         self.spacy_nlp = spacy.load('en_core_web_sm')
 
-
-    def non_qa_scanner_extractor(self, response):
+    def non_qa_scanner_extractor(self, response, cost_estimate_only=False):
         """
         Given a model output
         - split by \n into paragraphs
@@ -69,7 +68,8 @@ class ClaimExtractor():
 
                 # call fact_extractor on each snippet
                 facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(),
-                                                                              qa_input=False)
+                                                                              qa_input=False,
+                                                                              cost_estimate_only=cost_estimate_only)
 
                 # update token counts
                 prompt_tok_cnt += prompt_tok_num
@@ -94,7 +94,7 @@ class ClaimExtractor():
         else:
             return all_facts_lst, prompt_tok_cnt, response_tok_cnt
 
-    def qa_scanner_extractor(self, question, response):
+    def qa_scanner_extractor(self, question, response, cost_estimate_only=False):
         """
         Given a model output to a question
         - split the response into sentences using spaCy
@@ -119,7 +119,8 @@ class ClaimExtractor():
             snippet_lst.append(snippet)
 
             # call fact_extractor on each tesnippetxt
-            facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(), qa_input=True)
+            facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(), qa_input=True,
+                                                                          cost_estimate_only=cost_estimate_only)
 
             # update token counts
             prompt_tok_cnt += prompt_tok_num
@@ -156,7 +157,7 @@ class ClaimExtractor():
             prompt_template = open("./prompt/extraction_non_qa_template.txt", "r").read()
         return prompt_template
 
-    def fact_extractor(self, snippet, sentence, qa_input=False):
+    def fact_extractor(self, snippet, sentence, qa_input=False, cost_estimate_only=False):
         """
         snippet = (context1) <SOS>sentence<EOS> (context2)
         sentence = the sentence to be focused on
@@ -177,9 +178,10 @@ class ClaimExtractor():
             prompt_template = self.get_prompt_template(qa_input)  # qa_prompt_temp if qa_input else non_qa_prompt_temp
             prompt_text = prompt_template.format(snippet=snippet, sentence=sentence)
             response, prompt_tok_cnt, response_tok_cnt = self.get_model_response.get_response(self.system_message,
-                                                                                              prompt_text)
+                                                                                              prompt_text,
+                                                                                              cost_estimate_only)
 
-            if "No verifiable claim." in response:
+            if not response or "No verifiable claim." in response:
                 return None, prompt_tok_cnt, response_tok_cnt
             else:
                 # remove itemized list

@@ -84,7 +84,7 @@ class ClaimVerifier():
 
         return prompt_few_shot
 
-    def verifying_claim(self, claim_snippets_dict, search_res_num=5):
+    def verifying_claim(self, claim_snippets_dict, search_res_num=5, cost_estimate_only=False):
         """
         search_snippet_lst = [{"title": title, "snippet": snippet, "link": link}, ...]
         """
@@ -109,7 +109,7 @@ class ClaimVerifier():
                                               pad_token_id=self.tokenizer.eos_token_id, )
                 response = self.tokenizer.batch_decode(output)
                 clean_output = ' '.join(response).split("<|end_header_id|>\n\n")[
-                    -1].replace("<|eot_id|>", "").strip()
+                        -1].replace("<|eot_id|>", "").strip() if response is not None else None
 
             else:
                 prompt_tail = self.your_task.format(
@@ -118,11 +118,11 @@ class ClaimVerifier():
                 )
                 prompt = f"{self.prompt_initial_temp}\n\n{prompt_tail}"
                 response, prompt_tok_num, response_tok_num = self.get_model_response.get_response(self.system_message,
-                                                                                                  prompt)
+                                                                                                  prompt,cost_estimate_only=cost_estimate_only)
                 prompt_tok_cnt += prompt_tok_num
                 response_tok_cnt += response_tok_num
 
-                clean_output = response.replace("#", '').split('.')[0].lower()
+                clean_output = response.replace("#", "").split(".")[0].lower() if response is not None else None
             claim_verify_res_dict[claim] = {"search_results": search_res_str,
                                             "response": response,
                                             "verification_result": clean_output}

@@ -32,7 +32,13 @@ class GetResponse():
         self.save_interval = 20
 
     # Returns the response from the model given a system message and a prompt text.
-    def get_response(self, system_message, prompt_text):
+    def get_response(self, system_message, prompt_text, cost_estimate_only=False):
+        prompt_tokens = len(self.tokenizer.encode(prompt_text))
+        if cost_estimate_only:
+            # count tokens in prompt and response
+            response_tokens = 0
+            return None, prompt_tokens, response_tokens
+
         # check if prompt is in cache; if so, return from cache
         cache_key = prompt_text.strip()
         if cache_key in self.cache_dict:
@@ -67,8 +73,6 @@ class GetResponse():
         if self.add_n % self.save_interval == 0:
             self.save_cache()
 
-        # count tokens in prompt and response
-        prompt_tokens = len(self.tokenizer.encode(prompt_text))
         response_tokens = len(self.tokenizer.encode(response_content))
         return response_content, prompt_tokens, response_tokens
 
