@@ -6,11 +6,11 @@ from .get_response import GetResponse
 
 
 class ClaimVerifier():
-    def __init__(self, model_name, label_n=2, cache_dir="./data/cache/", demon_dir="data/demos/"):
+    def __init__(self, model_name, label_n=2, cache_dir="./data/cache/", demon_dir="data/demos/", use_external_model=False):
         self.model=None
         self.model_name = model_name
         self.label_n = label_n
-        if os.path.isdir(model_name):
+        if os.path.isdir(model_name) or use_external_model:
             from unsloth import FastLanguageModel
 
             self.model, self.tokenizer = FastLanguageModel.from_pretrained(

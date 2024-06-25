@@ -19,9 +19,7 @@ class ClaimExtractor():
                 load_in_4bit=True,
             )
             FastLanguageModel.for_inference(self.model)
-            self.EOS_TOKEN = self.tokenizer.eos_token
-            self.tokenizer.pad_token = "[PAD]"
-            self.tokenizer.padding_side = "right"
+            self.model = self.model.to("cuda")
             self.alpaca_prompt = open("./prompt/extraction_alpaca_template.txt", "r").read()
         else:
             cache_dir = os.path.join(cache_dir, model_name)
@@ -53,18 +51,22 @@ class ClaimExtractor():
         for para in paragraph_lst:
             # split the text into sentences using spaCy
             sentences = self.get_sentence(para)
-            for i in range(len(sentences)):
-                lead_sent = sentences[0]  # 1st sentence of the para
-                context1 = " ".join(sentences[max(0, i - 3):i])
-                sentence = f"<SOS>{sentences[i].strip()}<EOS>"
-                context2 = " ".join(sentences[i + 1:i + 2])
-
-                # if the para is not long
-                if len(sentences) <= 5:
-                    snippet = f"{context1.strip()} {sentence.strip()} {context2.strip()}".strip()
-                # if the para is long, add lead sentence to context1
+            for i, sentence in enumerate(sentences):
+                if self.model:
+                    input = response.strip()
+                    snippet = input.replace(sentence, f"<SOS>{sentence}<EOS>")
                 else:
-                    snippet = f"{lead_sent.strip()} {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
+                    lead_sent = sentences[0]  # 1st sentence of the para
+                    context1 = " ".join(sentences[max(0, i - 3):i])
+                    sentence = f"<SOS>{sentences[i].strip()}<EOS>"
+                    context2 = " ".join(sentences[i + 1:i + 2])
+
+                    # if the para is not long
+                    if len(sentences) <= 5:
+                        snippet = f"{context1.strip()} {sentence.strip()} {context2.strip()}".strip()
+                    # if the para is long, add lead sentence to context1
+                    else:
+                        snippet = f"{lead_sent.strip()} {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
 
                 # call fact_extractor on each snippet
                 facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(),
@@ -109,12 +111,16 @@ class ClaimExtractor():
         # new return values
         snippet_lst = []
         fact_lst_lst = []
-        for i in range(len(sentences)):
-            context1 = " ".join(sentences[max(0, i - 3):i])
-            sentence = f"<SOS>{sentences[i].strip()}<EOS>"
-            context2 = " ".join(sentences[i + 1:i + 2])
+        for i, sentence in enumerate(sentences):
+            if self.model:
+                input = f"Questions:\n{question.strip()}\nResponse:\n{response.strip()}"
+                snippet = input.replace(sentence, f"<SOS>{sentence}<EOS>")
+            else:
+                context1 = " ".join(sentences[max(0, i - 3):i])
+                sentence = f"<SOS>{sentences[i].strip()}<EOS>"
+                context2 = " ".join(sentences[i + 1:i + 2])
 
-            snippet = f"Question: {question.strip()}\nResponse: {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
+                snippet = f"Question: {question.strip()}\nResponse: {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
             # new return value
             snippet_lst.append(snippet)
 
@@ -164,14 +170,18 @@ class ClaimExtractor():
         """
 
         if self.model:
-            formatted_input = self.alpaca_prompt.format(input, "")
+            formatted_input = self.alpaca_prompt.format(snippet, "")
             inputs = self.tokenizer(formatted_input, return_tensors="pt").to("cuda")
 
             outputs = self.model.generate(**inputs, max_new_tokens=1000, use_cache=True)
             output_str = ' '.join(self.tokenizer.batch_decode(outputs))
-            clean_output = output_str.split("### Response:")[-1].strip().replace("</s>", "")
+            # print(output_str)
 
+            clean_output = output_str.split("### Response:")[-1].strip().replace("</s>", "")
+            if not clean_output or "No verifiable claim." in clean_output:
+                return None, 0, 0
             claims = [x.strip() for x in clean_output.split("\n")]
+            print(claims)
             return claims, 0, 0
         else:
             ### prompting base approach via API call
@@ -180,7 +190,6 @@ class ClaimExtractor():
             response, prompt_tok_cnt, response_tok_cnt = self.get_model_response.get_response(self.system_message,
                                                                                               prompt_text,
                                                                                               cost_estimate_only)
-
             if not response or "No verifiable claim." in response:
                 return None, prompt_tok_cnt, response_tok_cnt
             else:

@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser.add_argument("--model_name", type=str, default="gpt-4o")
     parser.add_argument("--label_n", type=int, default=3, choices=[2, 3])
     parser.add_argument("--search_res_num", type=int, default=5)
+    parser.add_argument("--use_external_model", action='store_true')
     args = parser.parse_args()
 
     model_name = args.model_name
@@ -27,7 +28,8 @@ if __name__ == '__main__':
         input_data = [json.loads(line) for line in f if line.strip()]
     demon_dir = os.path.join(args.data_dir, 'demos')
     claim_verifier = ClaimVerifier(model_name=model_name, label_n=label_n,
-                                   cache_dir=args.cache_dir, demon_dir=demon_dir)
+                                   cache_dir=args.cache_dir, demon_dir=demon_dir,
+                                   use_external_model=args.use_external_model)
 
     output_dir = os.path.join(args.output_dir, 'model_output')
     os.makedirs(output_dir, exist_ok=True)
