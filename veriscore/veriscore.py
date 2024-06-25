@@ -19,10 +19,12 @@ abstain_responses = ["I'm sorry, I cannot fulfill that request.",
                      "Sorry, but I can't fulfill that request.",
                      "Sorry, I can't do that."]
 
+
 class VeriScorer(object):
     def __init__(self,
                  model_name_extraction='gpt-4-0125-preview',
                  model_name_verification='gpt-4o',
+                 use_external_model=False,
                  data_dir='./data',
                  cache_dir='./data/cache',
                  output_dir='./data_cache',
@@ -39,14 +41,16 @@ class VeriScorer(object):
 
         self.system_message_extraction = "You are a helpful assistant who can extract verifiable atomic claims from a piece of text. Each atomic fact should be verifiable against reliable external world knowledge (e.g., via Wikipedia)"
 
-        self.claim_extractor = ClaimExtractor(model_name_extraction, cache_dir=self.cache_dir)
+        self.claim_extractor = ClaimExtractor(model_name_extraction, cache_dir=self.cache_dir,
+                                              use_external_model=use_external_model)
 
         self.fetch_search = SearchAPI()
 
         demon_dir = os.path.join(self.data_dir, 'demos')
         self.model_name_verification = model_name_verification
         self.claim_verifier = ClaimVerifier(model_name=model_name_verification, label_n=label_n,
-                                         cache_dir=self.cache_dir, demon_dir=demon_dir)
+                                            cache_dir=self.cache_dir, demon_dir=demon_dir,
+                                            use_external_model=use_external_model)
         self.label_n = label_n
         self.search_res_num = search_res_num
 
@@ -169,6 +173,7 @@ class VeriScorer(object):
         print(f"\tScore: {sum(scores) / len(scores):.2f}")
         print(f"Total cost: {total_prompt_tok_cnt * 10 / 1e6 + total_resp_tok_cnt * 30 / 1e6}")
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", type=str, default='./data')
@@ -179,11 +184,12 @@ if __name__ == '__main__':
     parser.add_argument("--model_name_verification", type=str, default="gpt-4o")
     parser.add_argument("--label_n", type=int, default=3, choices=[2, 3])
     parser.add_argument("--search_res_num", type=int, default=5)
+    parser.add_argument("--use_external_model", action='store_true')
     args = parser.parse_args()
-
 
     vs = VeriScorer(model_name_extraction=args.model_name_extraction,
                     model_name_verification=args.model_name_verification,
+                    use_external_model=args.use_external_model,
                     data_dir=args.data_dir,
                     output_dir=args.output_dir,
                     cache_dir=args.cache_dir,
