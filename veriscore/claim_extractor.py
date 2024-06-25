@@ -8,9 +8,9 @@ from .get_response import GetResponse
 
 
 class ClaimExtractor():
-    def __init__(self, model_name, cache_dir="./data/cache/"):
+    def __init__(self, model_name, cache_dir="./data/cache/", use_external_model=False):
         self.model = None
-        if os.path.isdir(model_name):
+        if os.path.isdir(model_name) or use_external_model:
             from unsloth import FastLanguageModel
             self.model, self.tokenizer = FastLanguageModel.from_pretrained(
                 model_name=model_name,

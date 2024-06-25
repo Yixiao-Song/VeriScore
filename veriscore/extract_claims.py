@@ -22,6 +22,7 @@ if __name__ == '__main__':
     parser.add_argument("--output_dir", type=str, default='./data')
     parser.add_argument("--cache_dir", type=str, default='./data/cache')
     parser.add_argument("--model_name", type=str, default="gpt-4-0125-preview")
+    parser.add_argument("--use_external_model", action='store_true')
     args = parser.parse_args()
 
     input_file_name = "".join(args.input_file.split('.')[:-1])
@@ -32,7 +33,7 @@ if __name__ == '__main__':
 
     # initialize objects
     model_name = args.model_name
-    claim_extractor = ClaimExtractor(model_name, args.cache_dir)
+    claim_extractor = ClaimExtractor(model_name, args.cache_dir, args.use_external_model)
 
     output_dir = args.output_dir
     output_file = f"claims_{input_file_name}.jsonl"
