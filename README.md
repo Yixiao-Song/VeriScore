@@ -116,7 +116,10 @@ output:
 ```dictionary
  {
   ...
-  "response": result of claim verification
-  "clean_output": post-processed label
+  "claim_verification_result":[
+    {
+     "claim": claim text,
+     "search_results": concatenated search result
+     "verification_result": verification label
  }
 ```
