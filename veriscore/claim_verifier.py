@@ -6,8 +6,9 @@ from .get_response import GetResponse
 
 
 class ClaimVerifier():
-    def __init__(self, model_name, label_n=2, cache_dir="./data/cache/", demon_dir="data/demos/", use_external_model=False):
-        self.model=None
+    def __init__(self, model_name, label_n=2, cache_dir="./data/cache/", demon_dir="data/demos/",
+                 use_external_model=False):
+        self.model = None
         self.model_name = model_name
         self.label_n = label_n
         if os.path.isdir(model_name) or use_external_model:
@@ -34,7 +35,6 @@ class ClaimVerifier():
                                                   temperature=0)
             self.system_message = "You are a helpful assistant who can verify the truthfulness of a claim against reliable external world knowledge."
             self.prompt_initial_temp = self.get_initial_prompt_template()
-
 
     def get_instruction_template(self):
         prompt_temp = ''
@@ -89,6 +89,7 @@ class ClaimVerifier():
         search_snippet_lst = [{"title": title, "snippet": snippet, "link": link}, ...]
         """
         prompt_tok_cnt, response_tok_cnt = 0, 0
+        out_lst = []
         claim_verify_res_dict = {}
         for claim, search_snippet_lst in claim_snippets_dict.items():
             search_res_str = ""
@@ -102,11 +103,11 @@ class ClaimVerifier():
 
                 inputs = self.tokenizer(formatted_input, return_tensors="pt").to("cuda")
                 output = self.model.generate(**inputs,
-                                              max_new_tokens=500,
-                                              use_cache=True,
-                                              eos_token_id=[self.tokenizer.eos_token_id,
-                                                            self.tokenizer.convert_tokens_to_ids("<|eot_id|>")],
-                                              pad_token_id=self.tokenizer.eos_token_id, )
+                                             max_new_tokens=500,
+                                             use_cache=True,
+                                             eos_token_id=[self.tokenizer.eos_token_id,
+                                                           self.tokenizer.convert_tokens_to_ids("<|eot_id|>")],
+                                             pad_token_id=self.tokenizer.eos_token_id, )
                 response = self.tokenizer.batch_decode(output)
                 clean_output = ' '.join(response).split("<|end_header_id|>\n\n")[
                     -1].replace("<|eot_id|>", "").strip()
@@ -118,12 +119,14 @@ class ClaimVerifier():
                 )
                 prompt = f"{self.prompt_initial_temp}\n\n{prompt_tail}"
                 response, prompt_tok_num, response_tok_num = self.get_model_response.get_response(self.system_message,
-                                                                                                  prompt,cost_estimate_only=cost_estimate_only)
+                                                                                                  prompt,
+                                                                                                  cost_estimate_only=cost_estimate_only)
                 prompt_tok_cnt += prompt_tok_num
                 response_tok_cnt += response_tok_num
 
                 clean_output = response.replace("#", "").split(".")[0].lower() if response is not None else None
-            claim_verify_res_dict[claim] = {"search_results": search_res_str,
-                                            "response": response,
-                                            "verification_result": clean_output}
-        return claim_verify_res_dict, prompt_tok_cnt, response_tok_cnt
+            claim_verify_res_dict = {"claim": claim,
+                                     "search_results": search_res_str,
+                                     "verification_result": clean_output}
+            out_lst.append(claim_verify_res_dict)
+        return out_lst, prompt_tok_cnt, response_tok_cnt
