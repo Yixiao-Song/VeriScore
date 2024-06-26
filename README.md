@@ -52,7 +52,7 @@ Other optional flags:
 
 * `output_dir`: Directory for saving ouptut data. `./data` by default.
 * `cache_dir`: Directory for saving cache data. `./data/cache` by default.
-* `label_n`: This is type of label for claim verification. It could be `2` (binary) ro `3` (trinary)
+* `label_n`: This is type of label for claim verification. It could be `2` (binary) or `3` (trinary)
     * `2`: query to ask binary `supported` and `unsupported`
     * `3`: query to ask trinay `labels—supported`, `contradicted`, and `inconclusive`
 * `search_res_num`: A Hyperparameter for number of search result. `5` by default.
