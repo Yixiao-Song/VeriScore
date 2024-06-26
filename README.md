@@ -46,12 +46,14 @@ This is an end-to-end pipeline for running VeriScore.
     * `prompt_source`: name of dataset provide `question` like FreshQA
 * `model_name_extraction`: Name of model used for claim extraction. `gpt-4-0125-preview` by default.
 * `model_name_verification`: Name of model used for claim verification. `gpt-4o` by default.
+* `use_external_extraction_model`: If specified, it uses your custom model instead model used by API call for claim extraction. We use Unsloth to inference from specified model. False by default.
+* `use_external_verification_model`: If specified, it uses your custom model instead model used by API call for claim verification. We use Unsloth to inference from specified model. False by default.
 
 Other optional flags:
 
 * `output_dir`: Directory for saving ouptut data. `./data` by default.
 * `cache_dir`: Directory for saving cache data. `./data/cache` by default.
-* `label_n`: This is type of label for claim verification. It could be `2` (binary) ro `3` (trinary)
+* `label_n`: This is type of label for claim verification. It could be `2` (binary) or `3` (trinary)
     * `2`: query to ask binary `supported` and `unsupported`
     * `3`: query to ask trinay `labels—supported`, `contradicted`, and `inconclusive`
 * `search_res_num`: A Hyperparameter for number of search result. `5` by default.
@@ -74,6 +76,8 @@ Saving output:
     * `model`: name of model generate response
     * `prompt_source`: name of dataset provide `question` like FreshQA
 * `model_name`: Name of model used for claim extraction. `gpt-4-0125-preview` by default.
+* `use_external_model`: If specified, it uses your custom model instead model used by API call. We use Unsloth to inference from specified model. False by default.
+
 output:
 ```dictionary
  {
@@ -106,6 +110,8 @@ output:
  python3 -m veriscore.verify_claims --data_dir {data_dir} --input_file {input_file} --model_name {model_name}
 ```
 * `input_file`: Name of input data file. It should be `jsonl` format where each line contains the keys of the output dictionary from the `Evidence searching`.
+* `use_external_model`: If specified, it uses your custom model instead model used by API call. We use Unsloth to inference from specified model. False by default.
+
 output:
 ```dictionary
  {
