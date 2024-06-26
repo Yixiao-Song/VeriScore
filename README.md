@@ -46,7 +46,7 @@ This is an end-to-end pipeline for running VeriScore.
     * `prompt_source`: name of dataset provide `question` like FreshQA
 * `model_name_extraction`: Name of model used for claim extraction. `gpt-4-0125-preview` by default.
 * `model_name_verification`: Name of model used for claim verification. `gpt-4o` by default.
-* `use_external_model`: If specified, it uses your custom model instead model used by API call. We use Unsloth to inference from specified model. False by default.
+* `use_external_model`: If specified, it uses your custom model instead model used by API call. We use Unsloth to inference from specified model. False by default.
 
 Other optional flags:
 
