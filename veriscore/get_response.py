@@ -29,7 +29,8 @@ class GetResponse():
         # cache related
         self.cache_dict = self.load_cache()
         self.add_n = 0
-        self.save_interval = 20
+        self.save_interval = 1
+        self.print_interval = 20
 
     # Returns the response from the model given a system message and a prompt text.
     def get_response(self, system_message, prompt_text, cost_estimate_only=False):
@@ -72,6 +73,8 @@ class GetResponse():
         # save cache every save_interval times
         if self.add_n % self.save_interval == 0:
             self.save_cache()
+        if self.add_n % self.print_interval == 0:
+            print(f"Saving # {self.add_n} cache to {self.cache_file}...")
 
         response_tokens = len(self.tokenizer.encode(response_content))
         return response_content, prompt_tokens, response_tokens
@@ -85,7 +88,6 @@ class GetResponse():
         # load the latest cache first, since if there were other processes running in parallel, cache might have been updated
         for k, v in self.load_cache().items():
             self.cache_dict[k] = v
-        print(f"Saving cache to {self.cache_file}...")
         with open(self.cache_file, "w") as f:
             json.dump(self.cache_dict, f, indent=4)
 

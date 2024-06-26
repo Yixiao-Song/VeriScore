@@ -82,7 +82,7 @@ class VeriScorer(object):
                     f.write(json.dumps(output_dict) + "\n")
                     continue
 
-                if "question" in dict_item:
+                if "question" in dict_item and dict_item["question"]:
                     question = dict_item["question"]
                     snippet_lst, claim_list, all_claims, prompt_tok_cnt, response_tok_cnt = self.claim_extractor.qa_scanner_extractor(
                         question, response)
