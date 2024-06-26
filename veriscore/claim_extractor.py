@@ -181,7 +181,6 @@ class ClaimExtractor():
             if not clean_output or "No verifiable claim." in clean_output:
                 return None, 0, 0
             claims = [x.strip() for x in clean_output.split("\n")]
-            print(claims)
             return claims, 0, 0
         else:
             ### prompting base approach via API call

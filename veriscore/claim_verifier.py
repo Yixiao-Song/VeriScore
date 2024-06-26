@@ -109,7 +109,7 @@ class ClaimVerifier():
                                               pad_token_id=self.tokenizer.eos_token_id, )
                 response = self.tokenizer.batch_decode(output)
                 clean_output = ' '.join(response).split("<|end_header_id|>\n\n")[
-                        -1].replace("<|eot_id|>", "").strip() if response is not None else None
+                    -1].replace("<|eot_id|>", "").strip()
 
             else:
                 prompt_tail = self.your_task.format(

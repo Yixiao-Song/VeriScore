@@ -1,0 +1,6 @@
+You need to judge whether a claim is supported or not by search results from Google. When doing the task, take into consideration whether the link of the search result is of a trustworthy source. Mark your answer with ### signs.
+
+Below are the definitions of the two categories:
+
+Supported: A claim is supported by the search results if one or more search results directly support the claim. There can be cases where some search results are not fully related to the claim but no search result should directly contradict the claim. All parts of a claim should be supported by the search results. If there is a part of a claim that is not directly supported, the claim should be marked as unsupported.
+Unsupported: If a claim is not supported by the search results, mark it as unsupported.
