@@ -1,5 +1,5 @@
 # VeriScore
-This is the introduction of the pip package of VeriScore. It has two ways of extracting claims:
+This repository introduces the pip package of VeriScore, which is implemented in two ways for claim extraction and verification:
 1) prompting,
 2) fine-tuned model.
 
