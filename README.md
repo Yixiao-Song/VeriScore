@@ -39,8 +39,8 @@ This is an end-to-end pipeline for running VeriScore.
  python3 -m veriscore.veriscore --data_dir {data_dir} --input_file {input_file} --model_name_extraction {model_name_extraction} --model_name_verification {model_name_verification}
 ```
 * `data_dir`: Directory containing input data. `./data` by default.
-* `input_file`: Name of input data file. It should be `jsonl` format where each line contains
-    * `question`: query to ask
+* `input_file`: Name of the input data file. It should be in the `jsonl` format where each line contains
+    * `question`: query to prompt a language model for an output
     * `response`: generated response from of `question`
     * `model`: name of model generate response
     * `prompt_source`: name of dataset provide `question` like FreshQA
