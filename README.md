@@ -1,14 +1,14 @@
 # VeriScore
-This is introduction for pip package of VeriScore. It have two type of method to extract claims by 
-1) Prompting 
-2) Fine-tuned model
+This is the introduction of the pip package of VeriScore. It has two ways of extracting claims:
+1) prompting,
+2) fine-tuned model.
 
 **We have a preliminary [Colab notebook](https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for demo** 
 
-VeriScore consists of three parts 1) `claim extraction` 2) `evidence searching` and 3) `claim verification`.
+VeriScore consists of three parts 1) `claim extraction` 2) `evidence retrieval` and 3) `claim verification`.
 We provide an end-to-end pipeline to obtain the VeriScore, along with each of its components individually.
 
-**You can choose between a prompting-based approach and a fine-tuned model-based approach using the `model_name` option. If you specify the path to the checkpoint of a fine-tuned model, it will automatically access the local model to perform inference. If the model name is not in a directory format, it will use an API call instead.**
+**You can choose between a prompting-based approach or a fine-tuned model-based approach using the `model_name` option. If you specify the path to the checkpoint of a fine-tuned model, it will automatically access the local model for the inference. If the model name is not in a directory format, it will use an API call instead.**
 
 ## Install
 1. Make a new Python 3.9+ environment using `virtualenv` or `conda`.
