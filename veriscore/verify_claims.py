@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument("--cache_dir", type=str, default='./data/cache')
     parser.add_argument("--model_name", type=str, default="gpt-4o")
     parser.add_argument("--label_n", type=int, default=3, choices=[2, 3])
-    parser.add_argument("--search_res_num", type=int, default=5)
+    parser.add_argument("--search_res_num", type=int, default=10)
     parser.add_argument("--use_external_model", action='store_true')
     args = parser.parse_args()
 
