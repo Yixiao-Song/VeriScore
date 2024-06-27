@@ -1,16 +1,11 @@
 # VeriScore
-This repository introduces the pip package of VeriScore, which is implemented in two ways for claim extraction and verification:
-1) prompting,
-2) fine-tuned model.
+This repository contains code for our VeriScore factuality metric, which is a pipelined approach with three steps: 1) `claim extraction` 2) `evidence retrieval` and 3) `claim verification`. This package can be run with either closed-source LLMs (requires OpenAI/Anthropic API key), or with fine-tuned models for [claim extraction](https://huggingface.co/SYX/mistral_based_claim_extractor) and [verification](https://huggingface.co/SYX/llama3_based_claim_verifier) that you can download and use. The evidence retrieval step is performed with Google Search via the Serper API, so you will need to get a Serper API key [here](https://serper.dev/) to use VeriScore.
 
-**We have a preliminary [Colab notebook](https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for demo** 
+**Please see our [Colab notebook](https://colab.research.google.com/drive/14cJsd5xu-paXb1ld72kF3WA97qzcyEn1?authuser=1#scrollTo=uhfwyPWBUojR) for a demo!** 
 
-VeriScore consists of three parts 1) `claim extraction` 2) `evidence retrieval` and 3) `claim verification`.
-We provide an end-to-end pipeline to obtain the VeriScore, along with each of its components individually.
+**You can choose between prompting OpenAI/Anthropic models or using our fine-tuned models via the `model_name` option. If you specify the path to the checkpoint of a fine-tuned model, it will automatically access the local model for the inference. If the model name is not in this format, it will use an API call instead.**
 
-**You can choose between a prompting-based approach or a fine-tuned model-based approach using the `model_name` option. If you specify the path to the checkpoint of a fine-tuned model, it will automatically access the local model for the inference. If the model name is not in a directory format, it will use an API call instead.**
-
-## Install
+## Installation
 1. Make a new Python 3.9+ environment using `virtualenv` or `conda`.
 2. Install `veriscore` pacakge using `pip`
 3. Download `en_core_web_sm` using `spacy` library
@@ -20,7 +15,7 @@ pip install --upgrade veriscore
 python -m spacy download en_core_web_sm
 ```
 
-## Setup environment before running code
+## Set up environment before running code
 1. Download `prompt` folder that contains txt files of the prompt templates (see the `prompt` folder in this repository)
 2. Add an OpenAI or Claude API key to an environment variable in your `bash` for the prompting approach
 ```
@@ -64,7 +59,7 @@ Saving output:
 * `searched evidence` will be saved to `output_dir/evidence_{input_file_name}.jsonl`.
 * `verified claims` will be saved to `output_dir/model_output/verification_{input_file_name}.jsonl`.
 
-## Running individual part using a command line
+## Running individual components of the pipeline using the command line
 `Claim extraction`:
 ```
  python3 -m veriscore.extract_claims --data_dir {data_dir} --input_file {input_file} --model_name {model_name} 
