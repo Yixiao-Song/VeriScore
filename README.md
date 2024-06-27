@@ -51,7 +51,7 @@ Other optional flags:
 * `label_n`: This is the type of label for claim verification. It could be `2` (binary) or `3` (ternary)
     * `2`: `supported` and `unsupported`
     * `3`: `supported`, `contradicted`, and `inconclusive`
-* `search_res_num`: A Hyperparameter for number of search result. `5` by default.
+* `search_res_num`: A Hyperparameter for number of search result. `10` by default.
 
 Saving output: 
 `input_file_name` is file name removed `jsonl` from `—-input_file`
