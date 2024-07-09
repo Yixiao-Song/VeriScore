@@ -22,12 +22,12 @@ python -m spacy download en_core_web_sm
 1. Download `prompt` folder that contains txt files of the prompt templates (see the `prompt` folder in this repository)
 2. Add an OpenAI or Claude API key to an environment variable in your `bash` for the prompting approach
 ```
-export OPENAI_API_KEY={your_openai_api_key}
+export OPENAI_API_KEY_PERSONAL={your_openai_api_key}
 export CLAUDE_API_KEY={your_claude_api_key}
 ```
 3. Set SERPER API key to an environment variable in your `bash` for evidence retrieval
 ```
-export SERPER_KEY={your_serper_api_key}
+export SERPER_KEY_PRIVATE={your_serper_api_key}
 ```
 4. For the prompt-based approach, you need to set `data_dir/demos/` with [few-shot examples](https://github.com/Yixiao-Song/VeriScore/blob/main/data/demos/few_shot_examples.jsonl).
 
