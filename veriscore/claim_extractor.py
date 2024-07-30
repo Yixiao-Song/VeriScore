@@ -36,65 +36,67 @@ class ClaimExtractor():
     def non_qa_scanner_extractor(self, response, cost_estimate_only=False):
         """
         Given a model output
-        - split by \n into paragraphs
-        - split the paragraphs into sentences using spaCy
-        - go para by para, always add the first sent of the para into context1
+        - split the response into sentences using spaCy
         - snippet = (context1 = 0-3 sentence) <SOS>Sent<EOS> (context2 = 0-1 sentence)
         - call fact_extractor on each snippet
         """
-        # split response into paras & clean out empty strings
-        paragraph_lst = [x.strip() for x in response.split("\n") if x.strip() != ""]
+        sentences = self.get_sentence(response)
 
         all_facts_lst = []
         # keep track of token counts
         prompt_tok_cnt, response_tok_cnt = 0, 0
-        for para in paragraph_lst:
-            # split the text into sentences using spaCy
-            sentences = self.get_sentence(para)
-            for i, sentence in enumerate(sentences):
-                if self.model:
-                    input = response.strip()
-                    snippet = input.replace(sentence, f"<SOS>{sentence}<EOS>")
+
+        # new return values
+        snippet_lst = []
+        fact_lst_lst = []
+
+        for i, sentence in enumerate(sentences):
+            if self.model:
+                input = response.strip()
+                snippet = input.replace(sentence, f"<SOS>{sentence}<EOS>")
+            else:
+                lead_sent = sentences[0]  # 1st sentence of the para
+                context1 = " ".join(sentences[max(0, i - 3):i])
+                sentence = f"<SOS>{sentences[i].strip()}<EOS>"
+                context2 = " ".join(sentences[i + 1:i + 2])
+
+                # if the para is not long
+                if len(sentences) <= 5:
+                    snippet = f"{context1.strip()} {sentence.strip()} {context2.strip()}".strip()
+                # if the para is long, add lead sentence to context1
                 else:
-                    lead_sent = sentences[0]  # 1st sentence of the para
-                    context1 = " ".join(sentences[max(0, i - 3):i])
-                    sentence = f"<SOS>{sentences[i].strip()}<EOS>"
-                    context2 = " ".join(sentences[i + 1:i + 2])
+                    snippet = f"{lead_sent.strip()} {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
 
-                    # if the para is not long
-                    if len(sentences) <= 5:
-                        snippet = f"{context1.strip()} {sentence.strip()} {context2.strip()}".strip()
-                    # if the para is long, add lead sentence to context1
-                    else:
-                        snippet = f"{lead_sent.strip()} {context1.strip()} {sentence.strip()} {context2.strip()}".strip()
+            snippet_lst.append(snippet)
 
-                # call fact_extractor on each snippet
-                facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(),
-                                                                              qa_input=False,
-                                                                              cost_estimate_only=cost_estimate_only)
+            # call fact_extractor on each snippet
+            facts, prompt_tok_num, response_tok_num = self.fact_extractor(snippet, sentences[i].strip(),
+                                                                          qa_input=False,
+                                                                          cost_estimate_only=cost_estimate_only)
 
-                # update token counts
-                prompt_tok_cnt += prompt_tok_num
-                response_tok_cnt += response_tok_num
+            # update token counts
+            prompt_tok_cnt += prompt_tok_num
+            response_tok_cnt += response_tok_num
 
-                if facts == None:
+            if facts == None:
+                fact_lst_lst.append([None])
+                continue
+
+            # deduplication
+            fact_lst = []
+            for fact in facts:
+                if fact.strip() == "":
                     continue
-
-                # deduplication
-                for fact in facts:
-                    if fact.strip() == "":
-                        continue
-                    # cases where GPT returns its justification
-                    elif fact.startswith("Note:"):
-                        continue
-                    elif fact not in all_facts_lst:
-                        all_facts_lst.append(fact)
+                # cases where GPT returns its justification
+                elif fact.startswith("Note:"):
+                    continue
+                elif fact not in all_facts_lst:
+                    all_facts_lst.append(fact.strip())
+                fact_lst.append(fact.strip())
+            fact_lst_lst.append(fact_lst)
 
         print(f"Returning facts and token counts for the whole response ...")
-        if all_facts_lst == None:
-            return None, prompt_tok_cnt, response_tok_cnt
-        else:
-            return all_facts_lst, prompt_tok_cnt, response_tok_cnt
+        return snippet_lst, fact_lst_lst, all_facts_lst, prompt_tok_cnt, response_tok_cnt
 
     def qa_scanner_extractor(self, question, response, cost_estimate_only=False):
         """
