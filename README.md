@@ -9,10 +9,10 @@ This repository contains code for our VeriScore factuality metric, which is a pi
 **You can choose between prompting OpenAI/Anthropic models or using our fine-tuned models via the `model_name` option. If you specify the path to the checkpoint of a fine-tuned model, it will automatically access the local model for the inference. If the model name is not in this format, it will use an API call instead.**
 
 ## Installation
-1. Make a new Python 3.9+ environment using `virtualenv` or `conda`. (If you use `conda`, follow [the conda-specific instructions](https://github.com/unslothai/unsloth?tab=readme-ov-file#conda-installation) from Unsloth to install Unsloth)
+1. Make a new Python 3.9+ environment using `virtualenv` or `conda`. 
 2. Install `veriscore` pacakge using `pip`
 3. Download `en_core_web_sm` using `spacy` library
-4. Our code supports inference using fine-tuned models based on the Unsloth library. To use this feature, you need to install the [Unsloth](https://github.com/unslothai/unsloth) library.
+4. Our code supports inference using fine-tuned models based on the Unsloth library. To use this feature, you need to install the [Unsloth](https://github.com/unslothai/unsloth) library. If you use `conda`, make sure to follow [the conda-specific instructions](https://github.com/unslothai/unsloth?tab=readme-ov-file#conda-installation) from Unsloth.
 ```
 pip install --upgrade veriscore
 python -m spacy download en_core_web_sm
