@@ -120,3 +120,9 @@ output:
      "verification_result": verification label
  }
 ```
+## Data
+
+This [Google Drive folder](https://drive.google.com/drive/folders/1hzazGn9gxBNgkaYsHlqdfB5pxq_8RKt6?usp=sharing) contains:
+
+- the long-form generations of the tested models given the prompts in Table 1 in the paper
+- human annotation results in Section 3.3
